@@ -12,8 +12,11 @@ void setup()
 }
 void draw()
 {
+  println("On");
   arduino.digitalWrite(ledPin, Arduino.HIGH);
   delay(1000);
+  println("Off");
   arduino.digitalWrite(ledPin, Arduino.LOW);
   delay(1000);
+ 
 }
