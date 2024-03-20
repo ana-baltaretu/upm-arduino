@@ -30,7 +30,7 @@ void setup() {
   println("Ola");
   
   printArray(Serial.list());
-  myPort = new Serial(this, Serial.list()[0], 9600);
+  myPort = new Serial(this, Serial.list()[2], 9600);
   
   rectColor = color(0, 255, 0);
   rectHighlight = color(51);
@@ -62,15 +62,16 @@ void draw() {
   stroke(0);
   rect(circleX, circleY, rectSizeW, rectSizeH);
     
-  //if (myPort.available() > 0) {
-  //  String data = myPort.readStringUntil('\n');
+  if (myPort.available() > 0) {
+    String data = myPort.readStringUntil('\n');
+    println(data);
   //  if (data != null) {
   //    float temperatureC = Float.parseFloat(data.trim());
   //    println("Temperature: " + temperatureC + " °C");
   //    temperatureC = (max(min(temperatureC, 30), 15) - 15) / 15 * 180;
   //    println("Angle: " + temperatureC);
   //  }
-  //}
+  }
 }
 
 void update(int x, int y) {
@@ -99,9 +100,7 @@ void mousePressed() {
     println("Backward");
     myPort.write("B");
   } 
-  //else {
-  //  myPort.write("S"); /// STOP
-  //}
+  myPort.write("S"); /// STOP
 }
 
 boolean overRect(int x, int y, int width, int height)  {
