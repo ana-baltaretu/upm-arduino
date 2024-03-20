@@ -1,6 +1,6 @@
 #include <Stepper.h>
 
-const int stepsPerRevolution = 500;  // change this to fit the number of steps per revolution
+int stepsPerRevolution = 0;  // change this to fit the number of steps per revolution
 // for your motor
 
 // initialize the stepper library on pins 8 through 11:
@@ -19,14 +19,26 @@ void setup() {
 void loop() {
   // step one revolution  in one direction:
   //Serial.println("clockwise");
-  if (stepsPerRevolution >= 0){
+  // drive forward
+  if (Serial.available()) {
+    val = Serial.read();
+  }
+
+  if (val == "F") {
+    stepsPerRevolution = -500;
+  } else if (val == "B") {
+    stepsPerRevolution = 500;
+  }
+
+  if (stepsPerRevolution > 0){ // drive backwards
     myStepper1.step(1);
-    myStepper2.step(2);
-  } else if (-500 < stepsPerRevolution < 0){
+    myStepper2.step(1);
+    stepsPerRevolution--;
+  } else if (stepsPerRevolution < 0){ // drive forward
     myStepper1.step(-1);
     myStepper2.step(-1);
+    stepsPerRevolution++;
   }
-  stepsPerRevolution--;
   //for (int i = 0; i < stepsPerRevolution; i++) {
   //  myStepper1.step(1);
   // myStepper2.step(1);
