@@ -11,8 +11,8 @@ Stepper myStepper2(stepsPerRevolution, 9, 7, 8, 6);
 
 void setup() {
   // set the speed at 60 rpm:
-  myStepper1.setSpeed(60);
-  myStepper2.setSpeed(60);
+  myStepper1.setSpeed(80);
+  myStepper2.setSpeed(80);
   // initialize the serial port:
   Serial.begin(9600);
 }
@@ -38,21 +38,27 @@ void loop() {
     } else if (val == 'B') {
       stepsPerRevolution = 500;
       //Serial.println("Backward");
-    }
+    } else if (val == 'H') {
+      myStepper1.setSpeed(200);
+      myStepper2.setSpeed(200);
+    } /*else if (val == 'L') {
+      myStepper1.setSpeed(20);
+      myStepper2.setSpeed(20);
+    }*/
   } 
   //delay(10);
 
 
   if (stepsPerRevolution > 0){ // drive backwards
     //Serial.println(stepsPerRevolution);
-    myStepper1.step(1);
-    myStepper2.step(1);
+    myStepper1.step(2);
+    myStepper2.step(2);
     stepsPerRevolution--;
   } 
   if (stepsPerRevolution < 0){ // drive forward
     //Serial.println(stepsPerRevolution);
-    myStepper1.step(-1);
-    myStepper2.step(-1);
+    myStepper1.step(-2);
+    myStepper2.step(-2);
     stepsPerRevolution++;
   }
   //for (int i = 0; i < stepsPerRevolution; i++) {
