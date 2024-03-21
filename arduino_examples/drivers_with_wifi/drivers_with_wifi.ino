@@ -5,6 +5,8 @@ char ssid[] = "Coldspotttt";
 char pass[] = "password1234";
 WiFiServer server(80); // Port 80
 
+const int speed = 150;
+const int steps = 150;
 int stepsPerRevolution = 100;  // change this to fit the number of steps per revolution
 char val;
 // for your motor
@@ -22,8 +24,8 @@ void setup() {
   }
 
   // set the speed at 60 rpm:
-  myStepper1.setSpeed(60);
-  myStepper2.setSpeed(60);
+  myStepper1.setSpeed(speed);
+  myStepper2.setSpeed(speed);
   // initialize the serial port:
   Serial.begin(9600);
   server.begin();
@@ -42,10 +44,10 @@ void loop() {
       if (val == 'F') {
         // Serial.println("Setting to high");
         digitalWrite(13, HIGH);
-        stepsPerRevolution = -100;
+        stepsPerRevolution = -steps;
       } else if (val == 'B') {
         digitalWrite(13, HIGH);
-        stepsPerRevolution = 100;
+        stepsPerRevolution = steps;
       } else {
         // Serial.println("Setting to low");
         digitalWrite(13, LOW);

@@ -3,24 +3,43 @@ import cv2
 import serial
 import serial.tools.list_ports
 import time
+import socket
+
+host = '192.168.204.78'  # '192.168.1.100' # Replace with Arduino's IP address
+port = 80
 
 ser = None
+s = None
+
 
 # Function to send command to Arduino
-def send_command(command):
-    global ser
-    ser.write(command.encode())  # Send command to Arduino
-    print(f"Sent command: {command}")
+def send_command(data_to_send):
+    global s
+    print("Connected!")
+    # s.sendall(data_to_send.encode())
+
+    s.sendall(data_to_send.encode())
+    # time.sleep(0.5)
+
+    print("Data sent!: ", data_to_send)
+
+    # global ser
+    # ser.write(command.encode())  # Send command to Arduino
+    # print(f"Sent command: {command}")
 
 
 def run():
-    global ser
-    for port in ports:
-        print(port.device)
-        print(port[0][:4])
+    global s
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.connect((host, port))
+
+    # global ser
+    # for port in ports:
+    #     print(port.device)
+    #     print(port[0][:4])
 
     # Configure serial port
-    ser = serial.Serial('COM8', 9600, timeout=1)
+    # ser = serial.Serial('COM8', 9600, timeout=1)
     # time.sleep(5)  # Wait for serial port to initialize
 
     detector = HandDetector(detectionCon=0.8, maxHands=1)   # Initialize hand detector
@@ -47,9 +66,10 @@ def run():
                     # send_command('S')  # STOP
                 elif fingers_count == 5:
                     send_command('S')  # STOP
-                    print("Stop!")
+                    print("Unknown, STOP")
                 else:
-                    print("Unknown")
+                    send_command('B')  # STOP
+                    print("Backward!")
                 previous_time = time.time()
         else:
             print("No hands PANIC!")
@@ -65,13 +85,14 @@ def run():
     cv2.destroyAllWindows()
 
     # Close serial port
-    ser.close()
+    # ser.close()
+    s.close()
 
 
 if __name__ == '__main__':
     ports = serial.tools.list_ports.comports()
     print(ports)
 
-    if len(ports) > 0:
-        run()
+    # if len(ports) > 0:
+    run()
 
