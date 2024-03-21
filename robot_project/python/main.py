@@ -58,7 +58,7 @@ def run():
             hand = hands[0]
             fingers = detector.fingersUp(hand)
             fingers_count = sum(fingers)
-            if time.time() - previous_time >= 0.5:
+            if time.time() - previous_time >= 0.4:
                 print("Send command")
                 if fingers_count == 0:
                     print("Go!")

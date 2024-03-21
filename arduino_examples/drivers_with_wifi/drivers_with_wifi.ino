@@ -5,8 +5,8 @@ char ssid[] = "Coldspotttt";
 char pass[] = "password1234";
 WiFiServer server(80); // Port 80
 
-const int speed = 150;
-const int steps = 150;
+const int speed = 300;
+const int steps = 200;
 int stepsPerRevolution = 100;  // change this to fit the number of steps per revolution
 char val;
 // for your motor
