@@ -1,9 +1,31 @@
 from cvzone.HandTrackingModule import HandDetector
 import cv2
+import serial
+import serial.tools.list_ports
+import time
 
-if __name__ == '__main__':
+ser = None
+
+# Function to send command to Arduino
+def send_command(command):
+    global ser
+    ser.write(command.encode())  # Send command to Arduino
+    print(f"Sent command: {command}")
+
+
+def run():
+    global ser
+    for port in ports:
+        print(port.device)
+        print(port[0][:4])
+
+    # Configure serial port
+    ser = serial.Serial('COM8', 9600, timeout=1)
+    # time.sleep(5)  # Wait for serial port to initialize
+
     detector = HandDetector(detectionCon=0.8, maxHands=1)   # Initialize hand detector
     cap = cv2.VideoCapture(0)   # Open webcam
+    previous_time = time.time()
 
     while True:
         # Read frame from webcam
@@ -14,20 +36,24 @@ if __name__ == '__main__':
         hands, frame = detector.findHands(frame)  # Detect hands in the frame
 
         if hands is not None and len(hands) > 0:
-            # cv2.imshow("Hand Tracking", frame)
             hand = hands[0]
             fingers = detector.fingersUp(hand)
             fingers_count = sum(fingers)
-            if fingers_count == 0:
-                print("Go!")
-            elif fingers_count == 5:
-                print("Stop!")
-            else:
-                print("Unknown")
-
-            # print(fingers)
+            if time.time() - previous_time >= 2:
+                print("Send command")
+                if fingers_count == 0:
+                    print("Go!")
+                    send_command('F')  # Move forward
+                    # send_command('S')  # STOP
+                elif fingers_count == 5:
+                    send_command('S')  # STOP
+                    print("Stop!")
+                else:
+                    print("Unknown")
+                previous_time = time.time()
         else:
-            print("No hands")
+            print("No hands PANIC!")
+
         cv2.imshow("Hand Tracking", frame)
 
         # Break the loop if 'q' is pressed
@@ -37,3 +63,15 @@ if __name__ == '__main__':
     # Release the webcam and close the window
     cap.release()
     cv2.destroyAllWindows()
+
+    # Close serial port
+    ser.close()
+
+
+if __name__ == '__main__':
+    ports = serial.tools.list_ports.comports()
+    print(ports)
+
+    if len(ports) > 0:
+        run()
+
