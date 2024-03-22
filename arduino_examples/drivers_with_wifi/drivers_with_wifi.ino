@@ -3,18 +3,19 @@
 
 char ssid[] = "Coldspotttt";
 char pass[] = "password1234";
-WiFiServer server(80); // Port 80
+WiFiServer server(80); // Port 80 (same as in Python)
 
 const int speed = 300;
 const int steps = 200;
-int stepsPerRevolution = 100;  // change this to fit the number of steps per revolution
+int stepsPerCommand = 100;  // starts moving a bit at start, 
+// counter of how much movement it still has to do based on received commands
 int rotationSteps = 0;
 char val;
 
 // initialize the stepper library on pins 8 through 11:
 // Pins entered in sequence IN1-IN3-IN2-IN4 for proper step sequence
-Stepper myStepper1(stepsPerRevolution, 5, 3, 4, 2);
-Stepper myStepper2(stepsPerRevolution, 9, 7, 8, 6);
+Stepper myStepper1(stepsPerCommand, 5, 3, 4, 2);
+Stepper myStepper2(stepsPerCommand, 9, 7, 8, 6);
 
 void setup() {
   WiFi.begin(ssid, pass);
@@ -35,38 +36,36 @@ void loop() {
   WiFiClient client = server.available();
   
   if (client) {
-    client.println("Hello from Arduino!");
-
-    if (stepsPerRevolution == 0 && client.available()) {
-      val = client.read();
+    if (stepsPerCommand == 0 && client.available()) {
+      val = client.read(); // Read input commands and process them
       if (val == 'F') {
         digitalWrite(13, HIGH);
-        stepsPerRevolution = -steps;
+        stepsPerCommand = -steps;
       } else if (val == 'B') {
         digitalWrite(13, HIGH);
-        stepsPerRevolution = steps;
+        stepsPerCommand = steps;
       } else if (val == 'L') {
         digitalWrite(13, HIGH);
         rotationSteps = -steps;
       } else if (val == 'R') {
         digitalWrite(13, HIGH);
         rotationSteps = steps;
-      } else {
+      } else { /// If nothing matches, STOP
         digitalWrite(13, LOW);
-        stepsPerRevolution = 0;
+        stepsPerCommand = 0;
       }
     }
   }
 
-  if (stepsPerRevolution > 0){ // Drive backwards
+  if (stepsPerCommand > 0){ // Drive backwards
     myStepper1.step(1);
     myStepper2.step(1);
-    stepsPerRevolution--;
+    stepsPerCommand--;
   } 
-  if (stepsPerRevolution < 0){ // Drive forward
+  if (stepsPerCommand < 0){ // Drive forward
     myStepper1.step(-1);
     myStepper2.step(-1);
-    stepsPerRevolution++;
+    stepsPerCommand++;
   }
   if (rotationSteps < 0) { /// Go Left
     myStepper1.step(1);

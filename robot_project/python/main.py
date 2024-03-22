@@ -3,16 +3,14 @@ import cv2
 import time
 import socket
 
-host = '192.168.204.78'  # '192.168.1.100' # Replace with Arduino's IP address
+host = '192.168.204.78'  # Our Arduino's IP
 port = 80
-
-ser = None
 s = None
+
 
 # Function to send command to Arduino
 def send_command(data_to_send):
     global s
-    print("Connected!")
     s.sendall(data_to_send.encode())
     print("Data sent!: ", data_to_send)
 
