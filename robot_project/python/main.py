@@ -1,7 +1,5 @@
 from cvzone.HandTrackingModule import HandDetector
 import cv2
-import serial
-import serial.tools.list_ports
 import time
 import socket
 
@@ -11,36 +9,18 @@ port = 80
 ser = None
 s = None
 
-
 # Function to send command to Arduino
 def send_command(data_to_send):
     global s
     print("Connected!")
-    # s.sendall(data_to_send.encode())
-
     s.sendall(data_to_send.encode())
-    # time.sleep(0.5)
-
     print("Data sent!: ", data_to_send)
-
-    # global ser
-    # ser.write(command.encode())  # Send command to Arduino
-    # print(f"Sent command: {command}")
 
 
 def run():
     global s
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.connect((host, port))
-
-    # global ser
-    # for port in ports:
-    #     print(port.device)
-    #     print(port[0][:4])
-
-    # Configure serial port
-    # ser = serial.Serial('COM8', 9600, timeout=1)
-    # time.sleep(5)  # Wait for serial port to initialize
 
     detector = HandDetector(detectionCon=0.8, maxHands=1)   # Initialize hand detector
     cap = cv2.VideoCapture(0)   # Open webcam
@@ -59,17 +39,24 @@ def run():
             fingers = detector.fingersUp(hand)
             fingers_count = sum(fingers)
             if time.time() - previous_time >= 0.4:
-                print("Send command")
-                if fingers_count == 0:
-                    print("Go!")
-                    send_command('F')  # Move forward
-                    # send_command('S')  # STOP
-                elif fingers_count == 5:
-                    send_command('S')  # STOP
+                if fingers_count <= 1:  # Move forward
+                    print("Send command: GO!")
+                    send_command('F')
+                elif fingers_count == 2:  # Move backward
+                    print("Send command: BACK!")
+                    send_command('B')
+                elif fingers_count == 3:  # Rotate left
+                    print("Send command: LEFT!")
+                    send_command('L')
+                elif fingers_count == 4:  # Rotate right
+                    print("Send command: RIGHT!")
+                    send_command('R')
+                elif fingers_count == 5: # STOP
+                    send_command('S')
+                    print("Send command: STOP!")
+                else:   # ANYTHING ELSE => CONFUSION => STOP!!!!!!
                     print("Unknown, STOP")
-                else:
-                    send_command('B')  # STOP
-                    print("Backward!")
+                    send_command('S')  # STOP
                 previous_time = time.time()
         else:
             print("No hands PANIC!")
@@ -84,15 +71,10 @@ def run():
     cap.release()
     cv2.destroyAllWindows()
 
-    # Close serial port
-    # ser.close()
+    # Close socket
     s.close()
 
 
 if __name__ == '__main__':
-    ports = serial.tools.list_ports.comports()
-    print(ports)
-
-    # if len(ports) > 0:
     run()
 
